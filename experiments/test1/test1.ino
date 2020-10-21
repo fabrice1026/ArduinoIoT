@@ -1,7 +1,10 @@
+#define VER "0.0.1"
+
 // include the library code:
 #include <Wire.h>
 #include <Adafruit_RGBLCDShield.h>
 #include <utility/Adafruit_MCP23017.h>
+#include <MKRGSM.h>
 
 
 // The shield uses the I2C SCL and SDA pins. On classic Arduinos
@@ -20,8 +23,32 @@ Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 #define WHITE 0x7
 
 void setup() {
-  // put your setup code here, to run once:
+  // For debugging purpose:
+  Serial.begin(9600);
 
+  //Initialize LCD:
+  lcd.begin(16,2);
+
+  lcd.setBacklight(TEAL);
+  
+  //Welcome Message 
+  lcd.print("ArdIoT v");
+  lcd.print(VER);
+  
+  delay(2000);
+  
+  lcd.setCursor(0,1);
+  lcd.print("GSM Init...");
+
+  Serial.println ("START gsmScan");
+  GSMScanner gsmScan = GSMScanner();
+  int ret = gsmScan.begin();
+  Serial.print("gsmScan.Init return : ");
+  Serial.println(ret);
+  String networks = gsmScan.readNetworks();
+  Serial.println("Networks:");
+  Serial.println(networks);
+  
 }
 
 void loop() {
