@@ -1,4 +1,5 @@
 #define VER "0.0.1"
+int temperaturePin = 4;
 
 // include the library code:
 #include <Wire.h>
@@ -35,23 +36,46 @@ void setup() {
   lcd.print("ArdIoT v");
   lcd.print(VER);
   
-  delay(2000);
+  delay(1000);
   
   lcd.setCursor(0,1);
   lcd.print("GSM Init...");
 
-  Serial.println ("START gsmScan");
+  /*Serial.println ("START gsmScan");
   GSMScanner gsmScan = GSMScanner();
   int ret = gsmScan.begin();
   Serial.print("gsmScan.Init return : ");
   Serial.println(ret);
   String networks = gsmScan.readNetworks();
   Serial.println("Networks:");
-  Serial.println(networks);
-  
+  Serial.println(networks);*/
+
+  Serial.println("END Setup");
+  lcd.clear();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  lcd.setCursor(0,0);
+  lcd.print("Time : ");
+  lcd.print(millis()/1000);
 
+  lcd.setCursor(0,1);
+  lcd.print("Temp : ");
+  lcd.print(getTemp());
+  delay(1000);
+}
+
+
+float getTemp() {
+  float readVal = analogRead(temperaturePin);
+  Serial.println();
+  Serial.print("analogRead : ");
+  Serial.println(readVal);
+  float voltage = readVal * 3.3 / 1024;
+  Serial.print("Voltage : ");
+  Serial.println(voltage);
+  float temperature = (voltage - 0.5) * 100;
+  Serial.print("Temperature :");
+  Serial.println(temperature);
+  return temperature;
 }
