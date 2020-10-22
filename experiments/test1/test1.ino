@@ -1,5 +1,7 @@
 #define VER "0.0.1"
-int temperaturePin = 4;
+int temperaturePin = 4; // Analog Pin for Temperature
+int buttonPin = 4;      // Digital Pin for Button (interrupt based)
+const int debounceTime = 15; // minimal time between pulses
 
 // include the library code:
 #include <Wire.h>
@@ -14,6 +16,8 @@ int temperaturePin = 4;
 // the I2C bus.
 Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 
+volatile int buttonPressCount = 0;
+
 // These #defines make it easy to set the backlight color
 #define RED 0x1
 #define YELLOW 0x3
@@ -27,10 +31,13 @@ void setup() {
   // For debugging purpose:
   Serial.begin(9600);
 
+  pinMode(buttonPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(buttonPin), buttonInterruptHandler, RISING);
+  
   //Initialize LCD:
   lcd.begin(16,2);
 
-  lcd.setBacklight(TEAL);
+  lcd.setBacklight(WHITE);
   
   //Welcome Message 
   lcd.print("ArdIoT v");
@@ -41,8 +48,8 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print("GSM Init...");
 
-  /*Serial.println ("START gsmScan");
-  GSMScanner gsmScan = GSMScanner();
+  Serial.println ("START gsmScan");
+  /*GSMScanner gsmScan = GSMScanner();
   int ret = gsmScan.begin();
   Serial.print("gsmScan.Init return : ");
   Serial.println(ret);
@@ -56,13 +63,15 @@ void setup() {
 
 void loop() {
   lcd.setCursor(0,0);
-  lcd.print("Time : ");
+  lcd.print("Btn : ");
+  lcd.print(buttonPressCount);
+  lcd.print("  ");
   lcd.print(millis()/1000);
 
   lcd.setCursor(0,1);
-  lcd.print("Temp : ");
+  lcd.print("Tmp : ");
   lcd.print(getTemp());
-  delay(1000);
+  delay(5000);
 }
 
 
@@ -78,4 +87,12 @@ float getTemp() {
   Serial.print("Temperature :");
   Serial.println(temperature);
   return temperature;
+}
+
+void buttonInterruptHandler() {
+  static long lastInt=0;
+  if (micros()-lastInt >= debounceTime * 1000) {
+    buttonPressCount++;
+    lastInt = micros();
+  }
 }
